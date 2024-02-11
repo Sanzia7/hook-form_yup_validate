@@ -1,22 +1,43 @@
 .app {
-	text-align: center;
-	color: yellow;
-	margin: 40px;
+	margin: 50px 0 0 200px;
 	font-size: 24px;
 }
 
 .errorLabel {
-	color: red;
+	color: rgb(0, 255, 255);
+	margin-left: 5px;
+	white-space: pre;
+	font-size: 20px;
 }
+
 input {
-	margin-top: 15px;
+	width: 450px;
+	margin: 12px 0;
 	font-size: 24px;
 	padding: 12px;
-	margin-right: 12px;
+	border-radius: 5px;
+	border: none;
+	color: darkblue;
 }
 
 button {
-	margin: 20px;
+	width: 450px;
+	margin: 30px auto;
 	font-size: 24px;
-	padding: 7px;
+	padding: 12px;
+
+	background-color: rgb(193, 112, 127);
+	color: whitesmoke;
+	box-shadow: 2px 2px 4px rgb(67, 57, 57);
+
+	cursor: pointer;
+	border-radius: 5px;
+	border: none;
+	transition: 0.5s;
+}
+
+button:hover {
+	color: darkorchid;
+	background-color: lightpink;
+	box-shadow: 2px 1px 4px gray;
 }

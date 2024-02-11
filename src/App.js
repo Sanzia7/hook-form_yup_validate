@@ -1,41 +1,16 @@
-import {useForm} from 'react-hook-form'
-import {yupResolver} from '@hookform/resolvers/yup'
-import * as yup from 'yup'
-import {useRef} from 'react'
-import {useStore} from './useStore'
-import styles from './App.module.css'
-
-const sendFormData = (formData) => {
-	console.log(formData)
-}
-
-const fieldsSchema = yup.object().shape({
-	email: yup.string().nullable().email(),
-	password: yup
-		.string()
-		.matches(
-			/^[\w_]*$/,
-			'Неверный password. Допустимые символы: буквы, цифры и нижнее подчёркивание.'
-		)
-		.min(3, 'Неверный password. Должно быть не меньше 3 символов.')
-		.max(20, 'Неверный password. Должно быть не больше 20 символов.'),
-	repeatPassword: yup
-		.string()
-		.matches(
-			/^[\w_]*$/,
-			'Неверный password. Должно быть полное соответствие с уже введённым паролем'
-		),
-})
+import { useForm } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
+import { useEffect, useRef } from 'react'
+import { Field } from './field'
+import { fieldsSchema } from './fields-schema'
+import styles from './app.module.css'
 
 export default function App() {
-	const {getState, updateState, resetState} = useStore()
-	const {email, password, repeatPassword} = getState()
-	const onChange = ({target}) => updateState(target.name, target.value)
-
 	const {
 		register,
 		handleSubmit,
-		formState: {errors},
+		trigger,
+		formState: { touchedFields, isValid, errors },
 	} = useForm({
 		defaultValues: {
 			email: '',
@@ -43,56 +18,46 @@ export default function App() {
 			repeatPassword: '',
 		},
 		resolver: yupResolver(fieldsSchema),
+		mode: 'onTouched',
 	})
-
-	const emailError = errors.email?.message
-	const passwordError = errors.password?.message
-	const repeatPasswordError = errors.repeatPassword?.message
 
 	const submitButtonRef = useRef(null)
 
+	const onSubmit = ({ email, password }) => {
+		console.log({ email, password })
+	}
+
+	useEffect(() => {
+		if (isValid) {
+			submitButtonRef.current.focus()
+		}
+	}, [isValid])
+
 	return (
 		<div className={styles.app}>
-			<form onSubmit={handleSubmit(sendFormData)}>
-				{emailError && (
-					<div className={styles.errorLabel}>{emailError}</div>
-				)}
-				{passwordError && (
-					<div className={styles.errorLabel}>{passwordError}</div>
-				)}
-				{repeatPasswordError && (
-					<div className={styles.errorLabel}>{repeatPasswordError}</div>
-				)}
-				<input
-					name="email"
+			<form onSubmit={handleSubmit(onSubmit)}>
+				<Field
 					type="email"
+					placeholder="Email"
+					error={errors.email?.message}
 					{...register('email')}
-					value={email}
-					placeholder="Почта:"
-					onChange={onChange}
 				/>
-				<input
-					name="password"
+				<Field
 					type="password"
-					{...register('password')}
-					value={password}
-					placeholder="Пароль:"
-					onChange={onChange}
+					placeholder="Password"
+					error={errors.password?.message}
+					{...register('password', {
+						onchange: () =>
+							touchedFields.repeatPassword && trigger('repeatPassword'),
+					})}
 				/>
-				<input
-					name="repeatPassword"
+				<Field
 					type="password"
+					placeholder="Repeat Password"
+					error={errors.repeatPassword?.message}
 					{...register('repeatPassword')}
-					value={repeatPassword}
-					placeholder="Повторный пароль:"
-					onChange={onChange}
 				/>
-				<button
-					type="submit"
-					// disabled={!!emailError} || {!!password }|| {!!repeatPassword}
-					ref={submitButtonRef}
-					onClick={resetState}
-				>
+				<button type="submit" disabled={!isValid} ref={submitButtonRef}>
 					Зарегистрироваться
 				</button>
 			</form>
